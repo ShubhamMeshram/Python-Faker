@@ -1,0 +1,34 @@
+{
+    "table_name": "dim_store",
+    "foreign_key": {
+        "target_table": "name_of_target_table",
+        "fk_name": "foreign_key_constraint_name"
+    },
+    "columns": {
+        "store_key": "BIGINT",
+        "store_number": "INT",
+        "store_name": "STRING",
+        "store_address_1": "STRING",
+        "store_address_2": "STRING",
+        "store_address_3": "STRING",
+        "store_city": "STRING",
+        "state_name": "STRING",
+        "state_code": "STRING",
+        "store_longitude": "DOUBLE",
+        "store_latitude": "DOUBLE",
+        "store_zip": "STRING",
+        "store_zip4": "STRING",
+        "store_phone": "STRING",
+        "store_phone_formatted": "STRING",
+        "store_phone_alt": "STRING",
+        "store_phone_alt_formatted": "STRING",
+        "RSM_Phone_Number": "STRING",
+        "store_status": "STRING",
+        "time_zone": "STRING",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING",
+        "is_referred": "STRING"
+    }
+}
