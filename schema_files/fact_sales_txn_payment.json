@@ -4,7 +4,7 @@
         {
             "target_table": "dim_calendar",
             "fk_name": "dim_cal_fact_sales_txn_payment_fk",
-            "local_col_nm": "business_date",
+            "local_col_nm": "business_date_key",
             "target_col_nm": "date_key"
         },
         {
