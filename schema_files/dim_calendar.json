@@ -1,9 +1,5 @@
 {
     "table_name": "dim_calendar",
-    "foreign_key": {
-        "target_table": "name_of_target_table",
-        "fk_name": "foreign_key_constraint_name"
-    },
     "columns": {
         "date_key": "INT",
         "full_date_uk": "STRING",

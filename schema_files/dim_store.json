@@ -1,10 +1,5 @@
 {
     "table_name": "dim_store",
-    "foreign_key": {
-        "target_table": "fact_sales_txn_payment",
-        "fk_name": "dim_store_fact_sales_txn_payment_fk",
-        "col_nm"    : "store_key"
-    },
     "columns": {
         "store_key": "BIGINT",
         "store_number": "INT",
