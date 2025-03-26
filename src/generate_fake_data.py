@@ -1,7 +1,3 @@
-import pandas as pd
-from faker import Faker
-import random
-
 import json
 import pandas as pd
 from faker import Faker
@@ -51,7 +47,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                                      Either "csv" or "parquet". Defaults to "csv".
         output_dir (str, optional): Directory to save the output file. Defaults to "output_files".
         data_registry (dict, optional): A dictionary to store generated DataFrames for foreign key referencing.
-                                       Keys are table names, values are DataFrames.
+                                       Keys are table names, values are the corresponding DataFrames.
 
     Returns:
         pandas.DataFrame: A DataFrame containing the generated fake data.
@@ -87,32 +83,30 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                 if data_registry and target_table in data_registry:
                     target_df = data_registry[target_table]
                     if not target_df.empty:
-                        row[column] = random.choice(target_df.iloc[:, 0].tolist())  # Pick a random value from the first column of the target table
-                    else:
                         row[column] = None  # Handle case where target table is empty
+                    else:
+                        row[column] = None  # Handle case where target table data is not available
+                elif data_type == "int":
+                    row[column] = fake.random_int()
+                elif data_type == "bigint":
+                    row[column] = fake.random_int() * 1000000
+                elif data_type == "string":
+                    row[column] = fake.word()
+                elif data_type == "timestamp":
+                    row[column] = fake.date_time().isoformat()  # Use isoformat() for wider compatibility
+                elif data_type == "boolean":
+                    row[column] = fake.boolean()
+                elif data_type == "double":
+                    row[column] = fake.pyfloat(left_digits=5, right_digits=2)
+                elif data_type.startswith("decimal"):  # Handle decimal(x, y)
+                    precision, scale = map(int, data_type[8:-1].split(","))
+                    row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
+                elif data_type == "float":
+                    row[column] = fake.pyfloat(left_digits=5, right_digits=2)
                 else:
-                    row[column] = None  # Handle case where target table data is not available
-            elif data_type == "int":
-                row[column] = fake.random_int()
-            elif data_type == "bigint":
-                row[column] = fake.random_int() * 1000000
-            elif data_type == "string":
-                row[column] = fake.word()
-            elif data_type == "timestamp":
-                row[column] = fake.date_time()
-            elif data_type == "boolean":
-                row[column] = fake.boolean()
-            elif data_type == "double":
-                row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-            elif data_type.startswith("decimal"):  # Handle decimal(x, y)
-                precision, scale = map(int, data_type[8:-1].split(","))
-                row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
-            elif data_type == "float":
-                row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-            else:
-                row[column] = None  # Handle unknown data types
+                    row[column] = None  # Handle unknown data types
 
-        data.append(row)
+            data.append(row)
 
     df = pd.DataFrame(data)
 
