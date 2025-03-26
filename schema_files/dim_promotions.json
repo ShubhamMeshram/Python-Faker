@@ -1,24 +1,24 @@
 {
     "table_name": "dim_promotions",
     "columns": {
-        promo_code INT
-        promo_desc STRING
-        promo_grp_id INT
-        promo_grp_desc STRING
-        promo_sub_grp_id INT
-        promo_sub_grp_desc STRING
-        promo_category_id INT
-        promo_category_desc STRING
-        promo_brand STRING
-        barcode BIGINT
-        eff_start_date TIMESTAMP
-        eff_end_date TIMESTAMP
-        data_src_key STRING
-        is_referred BOOLEAN
-        is_current BOOLEAN
-        created_date TIMESTAMP
-        updated_date TIMESTAMP
-        created_by STRING
-        updated_by STRING
+        "promo_code": "INT",
+        "promo_desc": "STRING",
+        "promo_grp_id": "INT",
+        "promo_grp_desc": "STRING",
+        "promo_sub_grp_id": "INT",
+        "promo_sub_grp_desc": "STRING",
+        "promo_category_id": "INT",
+        "promo_category_desc": "STRING",
+        "promo_brand": "STRING",
+        "barcode": "BIGINT",
+        "eff_start_date": "TIMESTAMP",
+        "eff_end_date": "TIMESTAMP",
+        "data_src_key": "STRING",
+        "is_referred": "BOOLEAN",
+        "is_current": "BOOLEAN",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
     }
 }
