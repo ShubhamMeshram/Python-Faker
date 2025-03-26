@@ -77,7 +77,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
         else:
             raise ValueError("Invalid output format. Choose 'csv' or 'parquet'.")
 
-        print(f" Data saved to {output_filename}")
+        print(f" Generating data at {output_filename} ...")
 
     return df
 
@@ -106,7 +106,7 @@ def generate_fake_value(data_type, fake):
 schema_dir = "../schema_files"
 output_dir = "../output_files"
 num_rows = 10
-output_format = "csv"
+output_format = "csv" # or "parquet"
 
 # Get all JSON schema files
 json_files = [f for f in os.listdir(schema_dir) if f.endswith(".json")]
@@ -124,7 +124,7 @@ for json_file in json_files:
             fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir, data_registry)
             if fake_df is not None:
                 data_registry[table_name] = fake_df  #  Store generated values for FK usage
-                print(f" Processed Parent Table: {json_file}")
+                print(f" Processed Parent Table: {schema_dir}/{json_file}\n")
 
 #  Process Child Tables (Uses Parent Data)
 for json_file in json_files:
@@ -136,4 +136,4 @@ for json_file in json_files:
             fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir, data_registry)
             if fake_df is not None:
                 data_registry[table_name] = fake_df
-                print(f" Processed Child Table: {json_file}")
+                print(f" Processed Child Table: {schema_dir}/{json_file}\n")
