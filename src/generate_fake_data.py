@@ -1,9 +1,9 @@
-import json
 import pandas as pd
 from faker import Faker
+import random
+import json
 from datetime import datetime
 import os
-import random
 
 def extract_foreign_keys(schema_file):
     """
@@ -14,21 +14,20 @@ def extract_foreign_keys(schema_file):
 
     Returns:
         dict: A dictionary where keys are column names, and values are dictionaries
-              containing 'target_table', 'fk_name', and 'col_nm' for foreign keys.
+              containing 'target_table' and 'fk_name' for foreign keys.
               Returns an empty dictionary if no foreign keys are found.
     """
     foreign_keys = {}
     try:
         with open(schema_file, 'r') as f:
             schema = json.load(f)
-            if "foreign_key" in schema:
-                foreign_keys = {
-                    schema["foreign_key"]["col_nm"]: {
-                        "target_table": schema["foreign_key"]["target_table"],
-                        "fk_name": schema["foreign_key"]["fk_name"],
-                        "col_nm": schema["foreign_key"]["col_nm"]
+            columns = schema.get('columns', {})
+            for column, details in columns.items():
+                if isinstance(details, dict) and 'foreign_key' in details:
+                    foreign_keys[column] = {
+                        'target_table': details['foreign_key']['target_table'],
+                        'fk_name': details['foreign_key']['fk_name']
                     }
-                }
     except FileNotFoundError:
         print(f"Error: Schema file not found: {schema_file}")
     except json.JSONDecodeError:
@@ -48,7 +47,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                                      Either "csv" or "parquet". Defaults to "csv".
         output_dir (str, optional): Directory to save the output file. Defaults to "output_files".
         data_registry (dict, optional): A dictionary to store generated DataFrames for foreign key referencing.
-                                       Keys are table names, values are the corresponding DataFrames.
+                                       Keys are table names, values are DataFrames.
 
     Returns:
         pandas.DataFrame: A DataFrame containing the generated fake data.
@@ -60,6 +59,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
     try:
         with open(schema_file, 'r') as f:
             schema = json.load(f)
+            columns = schema.get('columns', {})
     except FileNotFoundError:
         print(f"Error: Schema file not found: {schema_file}")
         return None  # Or raise an exception if you prefer
@@ -70,20 +70,25 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
 
     for _ in range(num_rows):
         row = {}
-        for column, data_type in schema["columns"].items():
+        for column, details in columns.items():
+            data_type = details['type'] if isinstance(details, dict) and 'type' in details else details
             if column == "business_date":
                 # Ensure 'business_date' is within the last 5 years
                 year = fake.random_int(min=start_year, max=current_year)
                 month = fake.random_int(min=1, max=12)
-                day = fake.random_int(min=1, max=28)
-                row[column] = datetime(year, month, day).strftime('%Y-%m-%d')
+                day = fake.random_int(min=1, max=28)  # To avoid invalid dates
+                row[column] = datetime(year, month, day).strftime('%Y-%m-%d')  # Format as YYYY-MM-DD
             elif column in foreign_keys:
-                target_table = foreign_keys[column]["target_table"]
-                target_column = foreign_keys[column]["col_nm"]
-                if data_registry and target_table in data_registry and not data_registry[target_table].empty:
-                    row[column] = random.choice(data_registry[target_table][target_column].tolist())
+                # Handle foreign key relationships
+                target_table = foreign_keys[column]['target_table']
+                if data_registry and target_table in data_registry:
+                    target_df = data_registry[target_table]
+                    if not target_df.empty:
+                        row[column] = random.choice(target_df.iloc[:, 0].tolist())  # Pick a random value from the first column of the target table
+                    else:
+                        row[column] = None  # Handle case where target table is empty
                 else:
-                    row[column] = fake.random_int(min=1, max=1000)  # Assign random FK if missing
+                    row[column] = None  # Handle case where target table data is not available
             elif data_type.lower() == "int":
                 row[column] = fake.random_int()
             elif data_type.lower() == "bigint":
@@ -91,20 +96,18 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
             elif data_type.lower() == "string":
                 row[column] = fake.word()
             elif data_type.lower() == "timestamp":
-                row[column] = fake.date_time().isoformat()
+                row[column] = fake.date_time()
             elif data_type.lower() == "boolean":
                 row[column] = fake.boolean()
             elif data_type.lower() == "double":
                 row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-            elif data_type.lower().startswith("decimal"):
+            elif isinstance(data_type.lower(), str) and data_type.lower().startswith("decimal"):  # Handle decimal(x, y)
                 precision, scale = map(int, data_type[8:-1].split(","))
                 row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
             elif data_type.lower() == "float":
                 row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-            elif data_type.lower() == "date":
-                row[column] = fake.date()
             else:
-                row[column] = None
+                row[column] = fake.word()  # Generate random word for unknown data types
 
         data.append(row)
 
@@ -130,8 +133,8 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
 # Example Usage:
 schema_dir = "../schema_files"  # Directory containing JSON schema files
 output_dir = "../output_files"  # Directory to save output files
-num_rows = 1000
-output_format = "parquet"  # or "csv"
+num_rows = 2
+output_format = "csv"  # or "csv"
 
 # Get a list of all JSON files in the schema directory
 json_files = [f for f in os.listdir(schema_dir) if f.endswith(".json")]
