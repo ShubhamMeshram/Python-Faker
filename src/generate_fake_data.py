@@ -75,38 +75,37 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                 # Ensure 'business_date' is within the last 5 years
                 year = fake.random_int(min=start_year, max=current_year)
                 month = fake.random_int(min=1, max=12)
-                day = fake.random_int(min=1, max=28)  # To avoid invalid dates
-                row[column] = datetime(year, month, day).strftime('%Y-%m-%d')  # Format as YYYY-MM-DD
+                day = fake.random_int(min=1, max=28)
+                row[column] = datetime(year, month, day).strftime('%Y-%m-%d')
             elif column in foreign_keys:
-                # Handle foreign key relationships
                 target_table = foreign_keys[column]['target_table']
-                if data_registry and target_table in data_registry:
-                    target_df = data_registry[target_table]
-                    if not target_df.empty:
-                        row[column] = None  # Handle case where target table is empty
-                    else:
-                        row[column] = None  # Handle case where target table data is not available
-                elif data_type == "int":
-                    row[column] = fake.random_int()
-                elif data_type == "bigint":
-                    row[column] = fake.random_int() * 1000000
-                elif data_type == "string":
-                    row[column] = fake.word()
-                elif data_type == "timestamp":
-                    row[column] = fake.date_time().isoformat()  # Use isoformat() for wider compatibility
-                elif data_type == "boolean":
-                    row[column] = fake.boolean()
-                elif data_type == "double":
-                    row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-                elif data_type.startswith("decimal"):  # Handle decimal(x, y)
-                    precision, scale = map(int, data_type[8:-1].split(","))
-                    row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
-                elif data_type == "float":
-                    row[column] = fake.pyfloat(left_digits=5, right_digits=2)
+                if data_registry and target_table in data_registry and not data_registry[target_table].empty:
+                    row[column] = random.choice(data_registry[target_table][foreign_keys[column]['fk_name']].tolist())
                 else:
-                    row[column] = None  # Handle unknown data types
+                    row[column] = fake.random_int(min=1, max=1000)  # Assign random FK if missing
+            elif data_type == "int":
+                row[column] = fake.random_int()
+            elif data_type == "bigint":
+                row[column] = fake.random_int() * 1000000
+            elif data_type == "string":
+                row[column] = fake.word()
+            elif data_type == "timestamp":
+                row[column] = fake.date_time().isoformat()
+            elif data_type == "boolean":
+                row[column] = fake.boolean()
+            elif data_type == "double":
+                row[column] = fake.pyfloat(left_digits=5, right_digits=2)
+            elif data_type.startswith("decimal"):
+                precision, scale = map(int, data_type[8:-1].split(","))
+                row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
+            elif data_type == "float":
+                row[column] = fake.pyfloat(left_digits=5, right_digits=2)
+            else:
+                row[column] = None
 
-            data.append(row)
+        data.append(row)  # ✅ Ensure data is added to the list
+
+
 
     df = pd.DataFrame(data)
 
