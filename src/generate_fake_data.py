@@ -14,20 +14,21 @@ def extract_foreign_keys(schema_file):
 
     Returns:
         dict: A dictionary where keys are column names, and values are dictionaries
-              containing 'target_table' and 'fk_name' for foreign keys.
+              containing 'target_table', 'fk_name', and 'col_nm' for foreign keys.
               Returns an empty dictionary if no foreign keys are found.
     """
-
     foreign_keys = {}
     try:
         with open(schema_file, 'r') as f:
             schema = json.load(f)
-            for column, details in schema.items():
-                if isinstance(details, dict) and 'foreign_key' in details:
-                    foreign_keys[column] = {
-                        'target_table': details['foreign_key']['target_table'],
-                        'fk_name': details['foreign_key']['fk_name']
+            if "foreign_key" in schema:
+                foreign_keys = {
+                    schema["foreign_key"]["col_nm"]: {
+                        "target_table": schema["foreign_key"]["target_table"],
+                        "fk_name": schema["foreign_key"]["fk_name"],
+                        "col_nm": schema["foreign_key"]["col_nm"]
                     }
+                }
     except FileNotFoundError:
         print(f"Error: Schema file not found: {schema_file}")
     except json.JSONDecodeError:
@@ -52,7 +53,6 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
     Returns:
         pandas.DataFrame: A DataFrame containing the generated fake data.
     """
-
     fake = Faker()
     current_year = datetime.now().year
     start_year = current_year - 5
@@ -70,7 +70,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
 
     for _ in range(num_rows):
         row = {}
-        for column, data_type in schema.items():
+        for column, data_type in schema["columns"].items():
             if column == "business_date":
                 # Ensure 'business_date' is within the last 5 years
                 year = fake.random_int(min=start_year, max=current_year)
@@ -78,34 +78,35 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                 day = fake.random_int(min=1, max=28)
                 row[column] = datetime(year, month, day).strftime('%Y-%m-%d')
             elif column in foreign_keys:
-                target_table = foreign_keys[column]['target_table']
+                target_table = foreign_keys[column]["target_table"]
+                target_column = foreign_keys[column]["col_nm"]
                 if data_registry and target_table in data_registry and not data_registry[target_table].empty:
-                    row[column] = random.choice(data_registry[target_table][foreign_keys[column]['fk_name']].tolist())
+                    row[column] = random.choice(data_registry[target_table][target_column].tolist())
                 else:
                     row[column] = fake.random_int(min=1, max=1000)  # Assign random FK if missing
-            elif data_type == "int":
+            elif data_type.lower() == "int":
                 row[column] = fake.random_int()
-            elif data_type == "bigint":
+            elif data_type.lower() == "bigint":
                 row[column] = fake.random_int() * 1000000
-            elif data_type == "string":
+            elif data_type.lower() == "string":
                 row[column] = fake.word()
-            elif data_type == "timestamp":
+            elif data_type.lower() == "timestamp":
                 row[column] = fake.date_time().isoformat()
-            elif data_type == "boolean":
+            elif data_type.lower() == "boolean":
                 row[column] = fake.boolean()
-            elif data_type == "double":
+            elif data_type.lower() == "double":
                 row[column] = fake.pyfloat(left_digits=5, right_digits=2)
-            elif data_type.startswith("decimal"):
+            elif data_type.lower().startswith("decimal"):
                 precision, scale = map(int, data_type[8:-1].split(","))
                 row[column] = fake.pydecimal(left_digits=precision - scale, right_digits=scale, positive=True)
-            elif data_type == "float":
+            elif data_type.lower() == "float":
                 row[column] = fake.pyfloat(left_digits=5, right_digits=2)
+            elif data_type.lower() == "date":
+                row[column] = fake.date()
             else:
                 row[column] = None
 
-        data.append(row)  # ✅ Ensure data is added to the list
-
-
+        data.append(row)
 
     df = pd.DataFrame(data)
 
