@@ -12,6 +12,12 @@
             "fk_name": "dim_store_fact_sales_txn_payment_fk",
             "local_col_nm": "store_key",
             "target_col_nm": "store_key"
+        },
+        {
+            "target_table": "dim_data_src",
+            "fk_name": "dim_data_src_fact_sales_txn_payment_fk",
+            "local_col_nm": "data_src_key",
+            "target_col_nm": "data_src_key"
         }
     ],
     "columns": {

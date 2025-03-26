@@ -1,0 +1,45 @@
+{
+    "table_name": "dim_items",
+    "foreign_keys": [
+        {
+            "target_table": "dim_item_upcs",
+            "fk_name": "dim_item_upcs_dim_items_fk",
+            "local_col_nm": "src_item_key",
+            "target_col_nm": "src_item_key"
+        }
+    ],
+    "columns": {
+        "item_key": "BIGINT",
+        "src_item_key": "INT",
+        "item_brand": "STRING",
+        "item_category": "STRING",
+        "item_desc": "STRING",
+        "item_ebt": "INT",
+        "item_group": "STRING",
+        "is_ingredient": "INT",
+        "is_recipe": "INT",
+        "is_expensed": "INT",
+        "legacy_lc": "STRING",
+        "item_mfg": "STRING",
+        "item_number": "INT",
+        "item_status": "INT",
+        "subgroup": "STRING",
+        "tax_type": "INT",
+        "item_type": "STRING",
+        "upc_size": "STRING",
+        "category_id": "INT",
+        "group_id": "INT",
+        "subgroup_id": "INT",
+        "item_inactive_date": "DATE",
+        "gl_category": "STRING",
+        "start_date": "DATE",
+        "end_date": "DATE",
+        "is_referred": "STRING",
+        "is_current": "INT",
+        "data_src_key": "INT",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}

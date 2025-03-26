@@ -1,0 +1,55 @@
+{
+    "table_name": "fact_sales_txn_hdr",
+    "foreign_keys": [
+        {
+            "target_table": "dim_customer",
+            "fk_name": "dim_cal_fact_sales_txn_hdr_fk",
+            "local_col_nm": "cust_key",
+            "target_col_nm": "cust_key"
+        },
+        {
+            "target_table": "dim_store",
+            "fk_name": "dim_store_fact_sales_txn_hdr_fk",
+            "local_col_nm": "store_key",
+            "target_col_nm": "store_key"
+        },
+        {
+            "target_table": "dim_data_src",
+            "fk_name": "dim_data_src_fact_sales_txn_hdr_fk",
+            "local_col_nm": "data_src_key",
+            "target_col_nm": "data_src_key"
+        }
+    ],
+    "columns": {
+        "txn_key": "DECIMAL(38,0)",
+        "txn_id": "STRING",
+        "store_key": "BIGINT",
+        "business_date": "DATE",
+        "business_date_key": "INT",
+        "event_start_date_key": "INT",
+        "event_end_date_key": "INT",
+        "receipt_date_key": "INT",
+        "event_start_datetime": "TIMESTAMP",
+        "event_end_datetime": "TIMESTAMP",
+        "receipt_datetime": "TIMESTAMP",
+        "data_src_key": "INT",
+        "txn_type": "STRING",
+        "total_gross_amt": "DECIMAL(25,4)",
+        "total_net_amt": "DECIMAL(25,4)",
+        "total_tax_amt": "DECIMAL(25,4)",
+        "total_discount_amt": "DECIMAL(25,4)",
+        "discount_flag": "STRING",
+        "age_verification_flag": "STRING",
+        "cust_key": "STRING",
+        "store_operator_key": "BIGINT",
+        "suspend_flag": "STRING",
+        "training_mode_flag": "STRING",
+        "shift_num": "STRING",
+        "event_seq_id": "STRING",
+        "register_id": "STRING",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}

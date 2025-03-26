@@ -1,0 +1,15 @@
+{
+    "table_name": "dim_data_src",
+    "columns": {
+        "data_src_key": "BIGINT",
+        "data_src_short_nm": "STRING",
+        "data_src_full_nm": "STRING",
+        "data_src_status": "STRING",
+        "is_referred": "BOOLEAN",
+        "is_current": "BOOLEAN",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}
