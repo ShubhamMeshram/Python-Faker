@@ -7,19 +7,51 @@ import pandas as pd
 from faker import Faker
 from datetime import datetime
 import os
+import random
 
-def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="output_files"):
+def extract_foreign_keys(schema_file):
+    """
+    Extracts foreign key relationships from a JSON schema file.
+
+    Args:
+        schema_file (str): Path to the JSON schema file.
+
+    Returns:
+        dict: A dictionary where keys are column names, and values are dictionaries
+              containing 'target_table' and 'fk_name' for foreign keys.
+              Returns an empty dictionary if no foreign keys are found.
+    """
+
+    foreign_keys = {}
+    try:
+        with open(schema_file, 'r') as f:
+            schema = json.load(f)
+            for column, details in schema.items():
+                if isinstance(details, dict) and 'foreign_key' in details:
+                    foreign_keys[column] = {
+                        'target_table': details['foreign_key']['target_table'],
+                        'fk_name': details['foreign_key']['fk_name']
+                    }
+    except FileNotFoundError:
+        print(f"Error: Schema file not found: {schema_file}")
+    except json.JSONDecodeError:
+        print(f"Error: Invalid JSON format in: {schema_file}")
+    return foreign_keys
+
+def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="output_files", data_registry=None):
     """
     Generates fake data based on a JSON schema definition and saves it to a file
     in the specified output directory, using the same name as the JSON file.
-    Ensures 'business_date' is within the last 5 years.
+    Ensures 'business_date' is within the last 5 years and handles foreign key relationships.
 
     Args:
-        schema_file (str): Path to the JSON file containing the table schema.
+        schema_file (str): Path to the JSON schema file containing the table schema.
         num_rows (int): The number of fake data rows to generate.
         output_format (str, optional): The format of the output data.
                                      Either "csv" or "parquet". Defaults to "csv".
         output_dir (str, optional): Directory to save the output file. Defaults to "output_files".
+        data_registry (dict, optional): A dictionary to store generated DataFrames for foreign key referencing.
+                                       Keys are table names, values are DataFrames.
 
     Returns:
         pandas.DataFrame: A DataFrame containing the generated fake data.
@@ -36,7 +68,10 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
         print(f"Error: Schema file not found: {schema_file}")
         return None  # Or raise an exception if you prefer
 
+    filename_without_ext = os.path.splitext(os.path.basename(schema_file))[0]
+    foreign_keys = extract_foreign_keys(schema_file)
     data = []
+
     for _ in range(num_rows):
         row = {}
         for column, data_type in schema.items():
@@ -46,6 +81,17 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
                 month = fake.random_int(min=1, max=12)
                 day = fake.random_int(min=1, max=28)  # To avoid invalid dates
                 row[column] = datetime(year, month, day).strftime('%Y-%m-%d')  # Format as YYYY-MM-DD
+            elif column in foreign_keys:
+                # Handle foreign key relationships
+                target_table = foreign_keys[column]['target_table']
+                if data_registry and target_table in data_registry:
+                    target_df = data_registry[target_table]
+                    if not target_df.empty:
+                        row[column] = random.choice(target_df.iloc[:, 0].tolist())  # Pick a random value from the first column of the target table
+                    else:
+                        row[column] = None  # Handle case where target table is empty
+                else:
+                    row[column] = None  # Handle case where target table data is not available
             elif data_type == "int":
                 row[column] = fake.random_int()
             elif data_type == "bigint":
@@ -70,13 +116,11 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
 
     df = pd.DataFrame(data)
 
-    # Extract filename without extension
-    filename_without_ext = os.path.splitext(os.path.basename(schema_file))[0]
-    output_filename = os.path.join(output_dir, f"{filename_without_ext}.{output_format.lower()}")
-
     # Create output directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+    output_filename = os.path.join(output_dir, f"{filename_without_ext}.{output_format.lower()}")
 
     if output_format.lower() == "csv":
         df.to_csv(output_filename, index=False)
@@ -90,17 +134,22 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
     return df
 
 # Example Usage:
-schema_dir = "schema_files"  # Directory containing JSON schema files
-output_dir = "output_files"  # Directory to save output files
-num_rows = 100
-output_format = "csv"  # or "parquet"
+schema_dir = "../schema_files"  # Directory containing JSON schema files
+output_dir = "../output_files"  # Directory to save output files
+num_rows = 1000
+output_format = "parquet"  # or "csv"
 
 # Get a list of all JSON files in the schema directory
 json_files = [f for f in os.listdir(schema_dir) if f.endswith(".json")]
 
+# Data Registry to store generated DataFrames for foreign key referencing
+data_registry = {}
+
 # Process each JSON file
 for json_file in json_files:
     schema_file_path = os.path.join(schema_dir, json_file)
-    fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir)
+    table_name = os.path.splitext(json_file)[0]  # Use filename as table name
+    fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir, data_registry)
     if fake_df is not None:
+        data_registry[table_name] = fake_df  # Store the generated DataFrame
         print(f"Processed {json_file}")
