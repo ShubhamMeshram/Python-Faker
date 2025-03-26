@@ -1,0 +1,34 @@
+{
+    "table_name": "fact_sales_txn_tax",
+    "foreign_keys": [
+        {
+            "target_table": "dim_store",
+            "fk_name": "dim_store_fact_sales_txn_tax_fk",
+            "local_col_nm": "store_key",
+            "target_col_nm": "store_key"
+        },
+        {
+            "target_table": "dim_data_src",
+            "fk_name": "dim_data_src_fact_sales_txn_tax_fk",
+            "local_col_nm": "data_src_key",
+            "target_col_nm": "data_src_key"
+        }
+    ],
+    "columns": {
+        "txn_key": "DECIMAL(38,0)",
+        "txn_id": "BIGINT",
+        "store_key": "BIGINT",
+        "tax_detail_line_num": "INT",
+        "tax_level_id": "BIGINT",
+        "business_date": "DATE",
+        "business_date_key": "INT",
+        "data_src_key": "INT",
+        "store_operator_key": "BIGINT",
+        "tax_collected_amt": "DECIMAL(10,2)",
+        "taxable_sales_amt": "DECIMAL(10,2)",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}

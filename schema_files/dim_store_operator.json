@@ -1,0 +1,21 @@
+{
+    "table_name": "dim_store_operator",
+    "columns": {
+        "store_operator_key": "BIGINT",
+        "store_num": "INT",
+        "first_nm": "STRING",
+        "last_nm": "STRING",
+        "full_nm": "STRING",
+        "actv": "BOOLEAN",
+        "eff_start_date": "TIMESTAMP",
+        "eff_end_date": "TIMESTAMP",
+        "is_referred": "BOOLEAN",
+        "is_current": "BOOLEAN",
+        "checksum": "STRING",
+        "operator_id": "STRING",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}

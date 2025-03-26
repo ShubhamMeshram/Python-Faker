@@ -18,6 +18,12 @@
             "fk_name": "dim_data_src_fact_sales_txn_hdr_fk",
             "local_col_nm": "data_src_key",
             "target_col_nm": "data_src_key"
+        },
+        {
+            "target_table": "dim_store_operator",
+            "fk_name": "dim_store_operator_fact_sales_txn_hdr_fk",
+            "local_col_nm": "store_operator_key",
+            "target_col_nm": "store_operator_key"
         }
     ],
     "columns": {

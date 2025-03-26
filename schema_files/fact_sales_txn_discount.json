@@ -1,0 +1,44 @@
+{
+    "table_name": "fact_sales_txn_discount",
+    "foreign_keys": [
+        {
+            "target_table": "dim_store",
+            "fk_name": "dim_store_fact_sales_txn_discount_fk",
+            "local_col_nm": "store_key",
+            "target_col_nm": "store_key"
+        },
+        {
+            "target_table": "dim_data_src",
+            "fk_name": "dim_data_src_fact_sales_txn_discount_fk",
+            "local_col_nm": "data_src_key",
+            "target_col_nm": "data_src_key"
+        },
+        {
+            "target_table": "dim_promotions",
+            "fk_name": "dim_store_operator_fact_sales_txn_discount_fk",
+            "local_col_nm": "discount_promo_code",
+            "target_col_nm": "promo_code"
+        }
+    ],
+    "columns": {
+        "txn_key": "DECIMAL(38,0)",
+        "txn_id": "STRING",
+        "store_key": "BIGINT",
+        "business_date": "DATE",
+        "business_date_key": "INT",
+        "data_src_key": "INT",
+        "discount_detail_line_num": "INT",
+        "target_line_num": "INT",
+        "discount_qty": "FLOAT",
+        "discount_amt": "DECIMAL(25,4)",
+        "discount_reason": "STRING",
+        "discount_id_type": "STRING",
+        "discount_id": "STRING",
+        "discount_promo_code": "BIGINT",
+        "approving_mgr_id": "STRING",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}
