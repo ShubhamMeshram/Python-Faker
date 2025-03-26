@@ -8,7 +8,7 @@ import os
 def extract_foreign_keys(schema):
     """Extract multiple foreign key relationships from schema JSON."""
     foreign_keys = {}
-    fk_list = schema.get('foreign_keys', [])  #  Supports multiple FKs
+    fk_list = schema.get('foreign_keys', [])  
 
     for fk_info in fk_list:
         target_table = fk_info.get('target_table')
@@ -18,10 +18,10 @@ def extract_foreign_keys(schema):
         if target_table and local_col_nm and target_col_nm:
             foreign_keys[local_col_nm] = {
                 'target_table': target_table,
-                'target_col_nm': target_col_nm  # Store the actual target column name
+                'target_col_nm': target_col_nm  
             }
 
-    return foreign_keys  #  Returns empty dict if no foreign keys exist
+    return foreign_keys   
 
 def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="output_files", data_registry=None):
     """Generates fake data while maintaining referential integrity for foreign keys."""
@@ -38,7 +38,7 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
         print(f"Error: Issue with schema file: {schema_file}")
         return None
 
-    foreign_keys = extract_foreign_keys(schema)  #  Supports multiple FKs
+    foreign_keys = extract_foreign_keys(schema)   
     data = []
 
     for _ in range(num_rows):
@@ -47,17 +47,16 @@ def generate_fake_data(schema_file, num_rows, output_format="csv", output_dir="o
             data_type = details['type'] if isinstance(details, dict) and 'type' in details else details
             
             if column in foreign_keys:
-                #  Enforce Foreign Key Integrity
                 target_table = foreign_keys[column]['target_table']
                 target_col_nm = foreign_keys[column]['target_col_nm']
 
                 if data_registry and target_table in data_registry and target_col_nm in data_registry[target_table].columns:
-                    row[column] = random.choice(data_registry[target_table][target_col_nm].tolist())  #  Select only from parent data
+                    row[column] = random.choice(data_registry[target_table][target_col_nm].tolist())   
                 else:
-                    row[column] = None  #  Fallback if parent data is missing (shouldn't happen)
+                    row[column] = None   
 
             elif column == "business_date":
-                row[column] = random.randint(start_year * 10000 + 101, current_year * 10000 + 1231)  # YYYYMMDD format
+                row[column] = random.randint(start_year * 10000 + 101, current_year * 10000 + 1231)   
 
             else:
                 row[column] = generate_fake_value(data_type, fake)
@@ -102,37 +101,35 @@ def generate_fake_value(data_type, fake):
         return fake.pyfloat(left_digits=5, right_digits=2)
     return None  
 
-#  Example Usage:
+
 schema_dir = "../schema_files"
 output_dir = "../output_files"
 num_rows = 10
 output_format = "csv" # or "parquet"
 
-# Get all JSON schema files
 json_files = [f for f in os.listdir(schema_dir) if f.endswith(".json")]
 
-# Data Registry to store DataFrames for FK relationships
 data_registry = {}
 
-#  Process Parent Tables First (Enforces Referential Integrity)
+
 for json_file in json_files:
     schema_file_path = os.path.join(schema_dir, json_file)
     with open(schema_file_path, 'r') as f:
         schema = json.load(f)
         table_name = schema.get('table_name', os.path.splitext(json_file)[0])
-        if "dim" in table_name.lower():  #  Identify Parent Tables
+        if "dim" in table_name.lower():  
             fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir, data_registry)
             if fake_df is not None:
-                data_registry[table_name] = fake_df  #  Store generated values for FK usage
+                data_registry[table_name] = fake_df  
                 print(f" Processed Parent Table: {schema_dir}/{json_file}\n")
 
-#  Process Child Tables (Uses Parent Data)
+
 for json_file in json_files:
     schema_file_path = os.path.join(schema_dir, json_file)
     with open(schema_file_path, 'r') as f:
         schema = json.load(f)
         table_name = schema.get('table_name', os.path.splitext(json_file)[0])
-        if "fact" in table_name.lower():  #  Identify Fact Tables
+        if "fact" in table_name.lower():  
             fake_df = generate_fake_data(schema_file_path, num_rows, output_format, output_dir, data_registry)
             if fake_df is not None:
                 data_registry[table_name] = fake_df
