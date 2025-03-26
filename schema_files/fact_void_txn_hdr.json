@@ -1,0 +1,71 @@
+{
+    "table_name": "fact_void_txn_hdr",
+    "foreign_keys": [
+        {
+            "target_table": "dim_store",
+            "fk_name": "dim_store_fact_void_txn_hdr_fk",
+            "local_col_nm": "store_key",
+            "target_col_nm": "store_key"
+        },
+        {
+            "target_table": "dim_data_src",
+            "fk_name": "dim_data_src_fact_void_txn_hdr_fk",
+            "local_col_nm": "data_src_key",
+            "target_col_nm": "data_src_key"
+        },
+        {
+            "target_table": "dim_calendar",
+            "fk_name": "dim_cal_fact_void_txn_hdr_fk",
+            "local_col_nm": "business_date_key",
+            "target_col_nm": "date_key"
+        },
+        {
+            "target_table": "dim_store_operator",
+            "fk_name": "dim_store_operator_fact_void_txn_hdr_fk",
+            "local_col_nm": "store_operator_key",
+            "target_col_nm": "store_operator_key"
+        },
+        {
+            "target_table": "dim_customer",
+            "fk_name": "dim_cal_fact_void_txn_hdr_fk",
+            "local_col_nm": "cust_id",
+            "target_col_nm": "cust_key"
+        }
+    ],
+    "columns": {
+        "txn_key": "DECIMAL(38,0)",
+        "txn_id": "STRING",
+        "store_key": "BIGINT",
+        "business_date": "DATE",
+        "data_src_key": "INT",
+        "txn_type": "STRING",
+        "total_gross_amt": "DECIMAL(38,3)",
+        "total_net_amt": "DECIMAL(38,3)",
+        "total_tax_net_amt": "DECIMAL(38,3)",
+        "total_tax_sales_amt": "DECIMAL(38,3)",
+        "total_grand_amt": "DECIMAL(38,3)",
+        "total_tax_exempt_amt": "DECIMAL(38,3)",
+        "total_tax_forgiven_amt": "DECIMAL(38,3)",
+        "sub_total": "FLOAT",
+        "age_verification_flag": "STRING",
+        "cust_id": "STRING",
+        "store_operator_key": "DOUBLE",
+        "suspend_flag": "STRING",
+        "training_mode_flag": "STRING",
+        "shift_num": "STRING",
+        "cashier_id": "STRING",
+        "business_date_key": "INT",
+        "event_start_date_key": "INT",
+        "event_end_date_key": "INT",
+        "receipt_date_key": "INT",
+        "event_start_time": "TIMESTAMP",
+        "event_end_time": "TIMESTAMP",
+        "receipt_time": "TIMESTAMP",
+        "event_seq_id": "STRING",
+        "register_id": "STRING",
+        "created_date": "TIMESTAMP",
+        "updated_date": "TIMESTAMP",
+        "created_by": "STRING",
+        "updated_by": "STRING"
+    }
+}
